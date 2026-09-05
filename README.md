@@ -13,7 +13,7 @@
 - Cài đặt môi trường: Flutter SDK, Android Studio, AVD
 - Tạo Flutter project `casestudy1_app`
 - Chạy thử ứng dụng thành công trên máy ảo Android (emulator)
-- Khởi tạo Git, kết nối remote GitHub và push code lên nhánh `main`
+- Khởi tạo Git và push lên nhánh `main`
 - Tạo và checkout nhánh `buoi1`
 
 ## Link repository
