@@ -12,7 +12,7 @@
 ## Nội dung đã thực hiện (Buổi 1)
 - Cài đặt Flutter SDK, Android Studio, AVD
 - Tạo Flutter project `casestudy1_app`
-- Chạy thử ứng dụng trên máy ảo Android (emulator)
+- Chạy thử ứng dụng trên Android Emulator
 - Khởi tạo Git và push lên nhánh `main`
 - Tạo và checkout nhánh `buoi1`
 
