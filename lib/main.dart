@@ -24,21 +24,29 @@ class ExpenseManagerApp extends StatelessWidget {
                     children: [
                       Image.asset(
                         'assets/images/logo.png',
-                        width: 120,
+                        width: 140,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
                       const Text(
                         'Expense Manager',
                         style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.6,
+                          color: Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       const Text(
                         'Quản lý chi tiêu cá nhân\n'
                         'đơn giản và hiệu quả',
                         textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.5,
+                          letterSpacing: 0.2,
+                          color: Color(0xFF64748B),
+                        ),
                       ),
                     ],
                   ),
