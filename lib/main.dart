@@ -12,6 +12,7 @@ class ExpenseManagerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Colors.white,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -48,7 +49,22 @@ class ExpenseManagerApp extends StatelessWidget {
                     onPressed: () {
                       print('Bắt đầu');
                     },
-                    child: const Text('Bắt đầu'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1967D2),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      'Bắt đầu',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],
