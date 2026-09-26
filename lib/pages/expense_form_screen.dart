@@ -348,8 +348,11 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                         .replaceAll(',', '')
                         .trim();
                     final amount = double.tryParse(cleanValue);
-                    if (amount == null || amount <= 0) {
-                      return 'Số tiền không hợp lệ';
+                    if (amount == null) {
+                      return 'Số tiền phải là số hợp lệ';
+                    }
+                    if (amount <= 0) {
+                      return 'Số tiền phải lớn hơn 0';
                     }
                     return null;
                   },
