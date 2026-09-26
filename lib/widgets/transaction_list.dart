@@ -3,26 +3,39 @@ import '../models/transaction.dart';
 import 'transaction_item.dart';
 
 class TransactionHeader extends StatelessWidget {
-  const TransactionHeader({super.key});
+  final VoidCallback? onSeeAll;
+
+  const TransactionHeader({
+    super.key,
+    this.onSeeAll,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Text(
-          'Giao dịch gần đây',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
+        const Expanded(
+          child: Text(
+            'Giao dịch gần đây',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF0F172A),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        const Spacer(),
         TextButton(
-          onPressed: () {},
+          onPressed: onSeeAll,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
           child: const Text(
             'Xem tất cả',
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1769E0),
             ),
@@ -34,9 +47,14 @@ class TransactionHeader extends StatelessWidget {
 }
 
 class TransactionList extends StatelessWidget {
-  const TransactionList({super.key});
+  final List<TransactionData>? transactions;
 
-  static const List<TransactionData> transactions = [
+  const TransactionList({
+    super.key,
+    this.transactions,
+  });
+
+  static const List<TransactionData> defaultTransactions = [
     TransactionData(
       title: 'Ăn trưa',
       category: 'Ăn uống',
@@ -81,26 +99,56 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final list = transactions ?? defaultTransactions;
+
+    if (list.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 36),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+        ),
+        alignment: Alignment.center,
+        child: const Text(
+          'Chưa có giao dịch nào',
+          style: TextStyle(
+            color: Color(0xFF64748B),
+            fontSize: 15,
+          ),
+        ),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: transactions.length,
+        itemCount: list.length,
         separatorBuilder: (context, index) {
           return const Divider(
             height: 1,
             indent: 20,
             endIndent: 20,
+            color: Color(0xFFF1F5F9),
           );
         },
         itemBuilder: (context, index) {
           return TransactionItem(
-            transaction: transactions[index],
+            transaction: list[index],
           );
         },
       ),

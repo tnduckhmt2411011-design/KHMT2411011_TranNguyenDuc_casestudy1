@@ -3,47 +3,74 @@ import '../models/expense.dart';
 import 'expense_form_screen.dart';
 
 class ExpenseListPage extends StatefulWidget {
-  const ExpenseListPage({super.key});
+  final List<Expense>? externalExpenses;
+  final Function(Expense)? onAdd;
+  final Function(int, Expense)? onEdit;
+  final Function(int)? onDelete;
+
+  const ExpenseListPage({
+    super.key,
+    this.externalExpenses,
+    this.onAdd,
+    this.onEdit,
+    this.onDelete,
+  });
 
   @override
   State<ExpenseListPage> createState() => _ExpenseListPageState();
 }
 
 class _ExpenseListPageState extends State<ExpenseListPage> {
-  final List<Expense> _expenses = [
-    Expense(
-      id: 'E001',
-      title: 'Ăn sáng',
-      amount: 35000,
-      category: 'Ăn uống',
-      date: DateTime(2025, 4, 12),
-      isExpense: true,
-    ),
-    Expense(
-      id: 'E002',
-      title: 'Xăng xe',
-      amount: 50000,
-      category: 'Di chuyển',
-      date: DateTime(2025, 4, 11),
-      isExpense: true,
-    ),
-    Expense(
-      id: 'E003',
-      title: 'Lương tháng 4',
-      amount: 8000000,
-      category: 'Khác',
-      date: DateTime(2025, 4, 1),
-      isExpense: false,
-    ),
-    Expense(
-      id: 'E004',
-      title: 'Mua sách',
-      amount: 120000,
-      category: 'Học tập',
-      date: DateTime(2025, 3, 28),
-      isExpense: true,
-    ),
-  ];
+  late List<Expense> _localExpenses;
+
+  @override
+  void initState() {
+    super.initState();
+    _localExpenses = [
+      Expense(
+        id: 'E001',
+        title: 'Ăn sáng',
+        amount: 35000,
+        category: 'Ăn uống',
+        date: DateTime(2024, 9, 3),
+        isExpense: true,
+      ),
+      Expense(
+        id: 'E002',
+        title: 'Xăng xe',
+        amount: 50000,
+        category: 'Di chuyển',
+        date: DateTime(2024, 9, 3),
+        isExpense: true,
+      ),
+      Expense(
+        id: 'E003',
+        title: 'Lương tháng 9',
+        amount: 8000000,
+        category: 'Khác',
+        date: DateTime(2024, 9, 1),
+        isExpense: false,
+      ),
+      Expense(
+        id: 'E004',
+        title: 'Mua sắm',
+        amount: 300000,
+        category: 'Mua sắm',
+        date: DateTime(2024, 8, 31),
+        isExpense: true,
+      ),
+      Expense(
+        id: 'E005',
+        title: 'Học phí',
+        amount: 500000,
+        category: 'Học tập',
+        date: DateTime(2024, 8, 30),
+        isExpense: true,
+      ),
+    ];
+  }
+
+  List<Expense> get _expenses => widget.externalExpenses ?? _localExpenses;
 
   void _addExpense() {
     Navigator.push(
@@ -51,9 +78,13 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
       MaterialPageRoute(
         builder: (context) => ExpenseFormScreen(
           onSave: (newExpense) {
-            setState(() {
-              _expenses.insert(0, newExpense);
-            });
+            if (widget.onAdd != null) {
+              widget.onAdd!(newExpense);
+            } else {
+              setState(() {
+                _localExpenses.insert(0, newExpense);
+              });
+            }
           },
         ),
       ),
@@ -67,9 +98,13 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
         builder: (context) => ExpenseFormScreen(
           initialExpense: _expenses[index],
           onSave: (updatedExpense) {
-            setState(() {
-              _expenses[index] = updatedExpense;
-            });
+            if (widget.onEdit != null) {
+              widget.onEdit!(index, updatedExpense);
+            } else {
+              setState(() {
+                _localExpenses[index] = updatedExpense;
+              });
+            }
           },
         ),
       ),
@@ -78,9 +113,13 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
 
   void _deleteExpense(int index) {
     final deletedItem = _expenses[index];
-    setState(() {
-      _expenses.removeAt(index);
-    });
+    if (widget.onDelete != null) {
+      widget.onDelete!(index);
+    } else {
+      setState(() {
+        _localExpenses.removeAt(index);
+      });
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -88,9 +127,13 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
         action: SnackBarAction(
           label: 'Hoàn tác',
           onPressed: () {
-            setState(() {
-              _expenses.insert(index, deletedItem);
-            });
+            if (widget.onAdd != null) {
+              widget.onAdd!(deletedItem);
+            } else {
+              setState(() {
+                _localExpenses.insert(index, deletedItem);
+              });
+            }
           },
         ),
       ),
@@ -129,7 +172,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
   Color _getCategoryColor(String category) {
     switch (category) {
       case 'Ăn uống':
-        return const Color(0xFFFF5C5C);
+        return const Color(0xFFFF6D00);
       case 'Di chuyển':
         return const Color(0xFF2196F3);
       case 'Mua sắm':
@@ -137,7 +180,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
       case 'Học tập':
         return const Color(0xFF009688);
       default:
-        return const Color(0xFF757575);
+        return const Color(0xFF2EAD4B);
     }
   }
 
@@ -151,6 +194,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
+            fontSize: 20,
           ),
         ),
         backgroundColor: Colors.white,
@@ -173,8 +217,8 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
                 return Material(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(16),
+                    side: const BorderSide(color: Color(0xFFF1F5F9)),
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
@@ -217,11 +261,11 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
                                 : const Color(0xFF2EAD4B),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         IconButton(
                           icon: const Icon(
                             Icons.edit_outlined,
-                            size: 20,
+                            size: 18,
                             color: Color(0xFF1769E0),
                           ),
                           onPressed: () => _editExpense(index),
@@ -229,7 +273,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
                         IconButton(
                           icon: const Icon(
                             Icons.delete_outline,
-                            size: 20,
+                            size: 18,
                             color: Color(0xFFE53935),
                           ),
                           onPressed: () => _deleteExpense(index),

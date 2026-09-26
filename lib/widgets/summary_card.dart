@@ -1,29 +1,43 @@
 import 'package:flutter/material.dart';
 
 class SummarySection extends StatelessWidget {
-  const SummarySection({super.key});
+  final double income;
+  final double expense;
+
+  const SummarySection({
+    super.key,
+    this.income = 8000000.0,
+    this.expense = 3000000.0,
+  });
+
+  String _formatCurrency(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         Expanded(
           child: SummaryCard(
             title: 'TỔNG THU NHẬP',
-            amount: '8.000.000 đ',
+            amount: '${_formatCurrency(income)} đ',
             icon: Icons.arrow_downward,
-            iconColor: Color(0xFF2EAD4B),
-            backgroundColor: Color(0xFFEAF8EB),
+            iconColor: const Color(0xFF2EAD4B),
+            backgroundColor: const Color(0xFFEAF8EB),
           ),
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 14),
         Expanded(
           child: SummaryCard(
             title: 'TỔNG CHI TIÊU',
-            amount: '3.000.000 đ',
+            amount: '${_formatCurrency(expense)} đ',
             icon: Icons.arrow_upward,
-            iconColor: Color(0xFFE53935),
-            backgroundColor: Color(0xFFFFEFF0),
+            iconColor: const Color(0xFFE53935),
+            backgroundColor: const Color(0xFFFFEFF0),
           ),
         ),
       ],
@@ -50,35 +64,36 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 145,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
-            radius: 28,
+            radius: 22,
             backgroundColor: iconColor.withValues(alpha: 0.18),
-            child: Icon(icon, color: iconColor, size: 30),
+            child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(height: 12),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF374151),
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              color: Color(0xFF4B5563),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             amount,
             style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
               color: iconColor,
             ),
           ),

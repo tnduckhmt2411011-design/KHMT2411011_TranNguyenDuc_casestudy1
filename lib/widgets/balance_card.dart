@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard({super.key});
+  final double balance;
+
+  const BalanceCard({
+    super.key,
+    this.balance = 5000000.0,
+  });
+
+  String _formatCurrency(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 330,
+      height: 270,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -17,13 +29,21 @@ class BalanceCard extends StatelessWidget {
             Color(0xFF1769E0),
           ],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1769E0).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(28),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -32,21 +52,27 @@ class BalanceCard extends StatelessWidget {
                       'SỐ DƯ HIỆN TẠI',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(width: 12),
-                    Icon(Icons.visibility, color: Colors.white, size: 28),
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.visibility_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 22),
-                const Text(
-                  '5.000.000 đ',
-                  style: TextStyle(
+                const SizedBox(height: 16),
+                Text(
+                  '${_formatCurrency(balance)} đ',
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 44,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 40,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const Spacer(),
@@ -54,18 +80,18 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 26,
-                      height: 10,
+                      width: 24,
+                      height: 8,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     _dot(),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     _dot(),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     _dot(),
                   ],
                 ),
@@ -73,20 +99,28 @@ class BalanceCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 15,
-            bottom: 40,
-            child: Container(
-              width: 130,
-              height: 130,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: const Icon(
-                Icons.account_balance_wallet,
-                size: 100,
-                color: Colors.white,
-              ),
+            right: 18,
+            bottom: 22,
+            child: Image.asset(
+              'assets/images/wallet.png',
+              width: 105,
+              height: 105,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet,
+                    size: 60,
+                    color: Colors.white,
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -96,8 +130,8 @@ class BalanceCard extends StatelessWidget {
 
   Widget _dot() {
     return Container(
-      width: 10,
-      height: 10,
+      width: 8,
+      height: 8,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.35),
         shape: BoxShape.circle,
