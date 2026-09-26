@@ -4,6 +4,7 @@ import '../widgets/balance_card.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaction_list.dart';
 import 'expense_form_screen.dart';
+import 'expense_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> pages = const [
     HomeContent(),
-    Center(child: Text('Giao dịch', style: TextStyle(fontSize: 24))),
+    ExpenseListPage(),
     Center(child: Text('Thống kê', style: TextStyle(fontSize: 24))),
   ];
 
