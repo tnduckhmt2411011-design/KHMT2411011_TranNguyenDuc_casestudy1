@@ -5,9 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:casestudy1_app/main.dart';
 
 void main() {
@@ -15,8 +13,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const ExpenseManagerApp());
 
-    // Verify that the title and button exist.
-    expect(find.text('Expense Manager'), findsOneWidget);
-    expect(find.text('Bắt đầu'), findsOneWidget);
+    // Verify that the title exists.
+    expect(find.text('Danh sách khoản chi'), findsOneWidget);
   });
 }
