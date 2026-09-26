@@ -47,6 +47,11 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       'color': Color(0xFF009688),
     },
     {
+      'name': 'Thu nhập',
+      'icon': Icons.attach_money,
+      'color': Color(0xFF2EAD4B),
+    },
+    {
       'name': 'Khác',
       'icon': Icons.more_horiz,
       'color': Color(0xFF757575),
@@ -62,7 +67,10 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         text: expense.amount.toStringAsFixed(0),
       );
       _noteController = TextEditingController(text: expense.title);
-      _selectedCategory = expense.category;
+      // Đảm bảo category ban đầu luôn tồn tại trong danh sách dropdown
+      final mappedCategory = expense.category == 'Giáo dục' ? 'Học tập' : expense.category;
+      final exists = _categories.any((c) => c['name'] == mappedCategory);
+      _selectedCategory = exists ? mappedCategory : 'Khác';
       _selectedDate = expense.date;
       _isExpense = expense.isExpense;
     } else {

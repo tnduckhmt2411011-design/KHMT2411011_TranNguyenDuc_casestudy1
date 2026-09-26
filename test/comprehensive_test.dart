@@ -183,5 +183,31 @@ void main() {
       expect(find.text('900.000 đ'), findsOneWidget);
       expect(find.text('7.150.000 đ'), findsOneWidget);
     });
+
+    testWidgets('ExpenseFormScreen: Chỉnh sửa giao dịch Lương tháng 9 (category: Thu nhập) không bị lỗi assertion DropdownButton', (WidgetTester tester) async {
+      final luongExpense = Expense(
+        id: 'E003',
+        title: 'Lương tháng 9',
+        amount: 8000000,
+        category: 'Thu nhập',
+        date: DateTime(2024, 9, 1),
+        isExpense: false,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ExpenseFormScreen(
+            initialExpense: luongExpense,
+            onSave: (_) {},
+          ),
+        ),
+      );
+
+      // Màn hình mở lên thành công và hiển thị đúng thông tin
+      expect(find.text('Sửa giao dịch'), findsOneWidget);
+      expect(find.text('8000000'), findsOneWidget);
+      expect(find.text('Lương tháng 9'), findsOneWidget);
+      expect(find.text('Thu nhập'), findsWidgets);
+    });
   });
 }

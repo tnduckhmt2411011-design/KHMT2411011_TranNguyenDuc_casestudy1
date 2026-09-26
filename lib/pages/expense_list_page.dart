@@ -163,7 +163,10 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
       case 'Mua sắm':
         return Icons.shopping_cart;
       case 'Học tập':
+      case 'Giáo dục':
         return Icons.school;
+      case 'Thu nhập':
+        return Icons.attach_money;
       default:
         return Icons.attach_money;
     }
@@ -178,7 +181,10 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
       case 'Mua sắm':
         return const Color(0xFF9C27B0);
       case 'Học tập':
+      case 'Giáo dục':
         return const Color(0xFF009688);
+      case 'Thu nhập':
+        return const Color(0xFF2EAD4B);
       default:
         return const Color(0xFF2EAD4B);
     }
