@@ -112,13 +112,13 @@ void main() {
 
       // 2. Thẻ số dư (BalanceCard)
       expect(find.text('SỐ DƯ HIỆN TẠI'), findsOneWidget);
-      expect(find.text('5.000.000 đ'), findsOneWidget);
+      expect(find.text('7.050.000 đ'), findsOneWidget);
 
       // 3. Khu vực tổng thu nhập & tổng chi tiêu (SummarySection)
       expect(find.text('TỔNG THU NHẬP'), findsOneWidget);
       expect(find.text('8.000.000 đ'), findsOneWidget);
       expect(find.text('TỔNG CHI TIÊU'), findsOneWidget);
-      expect(find.text('3.000.000 đ'), findsOneWidget);
+      expect(find.text('950.000 đ'), findsOneWidget);
 
       // 4. Danh sách giao dịch gần đây (TransactionHeader & TransactionList)
       expect(find.text('Giao dịch gần đây'), findsOneWidget);
@@ -138,7 +138,50 @@ void main() {
       // 7. Chuyển tab sang Giao dịch
       await tester.tap(find.text('Giao dịch'));
       await tester.pumpAndSettle();
-      expect(find.text('Giao dịch'), findsWidgets);
+      expect(find.text('Danh sách khoản chi'), findsOneWidget);
+    });
+
+    testWidgets('HomePage: Tự động cập nhật số dư, tổng thu và tổng chi khi chuyển đổi giao dịch từ Chi tiêu sang Thu nhập', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: HomePage(),
+        ),
+      );
+
+      // Ban đầu: Thu nhập 8.000.000 đ, Chi tiêu 950.000 đ, Số dư 7.050.000 đ
+      expect(find.text('8.000.000 đ'), findsOneWidget);
+      expect(find.text('950.000 đ'), findsOneWidget);
+      expect(find.text('7.050.000 đ'), findsOneWidget);
+
+      // Chuyển sang tab Giao dịch
+      await tester.tap(find.text('Giao dịch'));
+      await tester.pumpAndSettle();
+
+      // Mở sửa giao dịch đầu tiên 'Ăn trưa' (50.000 đ)
+      final editIcons = find.byIcon(Icons.edit_outlined);
+      await tester.tap(editIcons.first);
+      await tester.pumpAndSettle();
+
+      // Chuyển sang Thu nhập (sử dụng .last để chọn nút toggle trên ExpenseFormScreen)
+      await tester.tap(find.text('Thu nhập').last);
+      await tester.pumpAndSettle();
+
+      // Cuộn tới nút Lưu và nhấn Lưu
+      await tester.ensureVisible(find.text('Lưu'));
+      await tester.tap(find.text('Lưu'));
+      await tester.pumpAndSettle();
+
+      // Quay lại Trang chủ
+      await tester.tap(find.text('Trang chủ'));
+      await tester.pumpAndSettle();
+
+      // Sau khi chuyển Ăn trưa (50.000 đ) sang Thu nhập:
+      // Tổng thu nhập: 8.000.000 + 50.000 = 8.050.000 đ
+      // Tổng chi tiêu: 950.000 - 50.000 = 900.000 đ (giảm đi chính xác!)
+      // Số dư: 8.050.000 - 900.000 = 7.150.000 đ
+      expect(find.text('8.050.000 đ'), findsOneWidget);
+      expect(find.text('900.000 đ'), findsOneWidget);
+      expect(find.text('7.150.000 đ'), findsOneWidget);
     });
   });
 }

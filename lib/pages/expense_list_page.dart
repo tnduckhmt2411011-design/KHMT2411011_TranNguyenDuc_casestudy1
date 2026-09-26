@@ -286,6 +286,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
               },
             ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'list_fab',
         backgroundColor: const Color(0xFF1769E0),
         foregroundColor: Colors.white,
         onPressed: _addExpense,

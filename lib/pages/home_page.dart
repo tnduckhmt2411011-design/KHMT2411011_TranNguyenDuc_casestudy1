@@ -78,8 +78,7 @@ class _HomePageState extends State<HomePage> {
         total += e.amount;
       }
     }
-    // Đảm bảo mức tối thiểu 3.000.000 như mockup nếu chưa có nhiều khoản chi
-    return total < 3000000 ? 3000000 : total;
+    return total;
   }
 
   double get _balance {
@@ -213,6 +212,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.white,
           body: SafeArea(child: pages[currentIndex]),
           floatingActionButton: FloatingActionButton(
+            heroTag: 'home_fab',
             backgroundColor: const Color(0xFF1769E0),
             foregroundColor: Colors.white,
             elevation: 4,
