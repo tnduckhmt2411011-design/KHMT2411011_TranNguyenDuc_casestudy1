@@ -13,13 +13,14 @@ class TransactionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Expanded(
           child: Text(
             'Giao dịch gần đây',
             style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w800,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
               color: Color(0xFF0F172A),
             ),
             overflow: TextOverflow.ellipsis,
@@ -35,7 +36,7 @@ class TransactionHeader extends StatelessWidget {
           child: const Text(
             'Xem tất cả',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1769E0),
             ),
@@ -108,7 +109,7 @@ class TransactionList extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         alignment: Alignment.center,
         child: const Text(
@@ -125,14 +126,7 @@ class TransactionList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -143,7 +137,7 @@ class TransactionList extends StatelessWidget {
             height: 1,
             indent: 20,
             endIndent: 20,
-            color: Color(0xFFF1F5F9),
+            color: Color(0xFFE5E7EB),
           );
         },
         itemBuilder: (context, index) {

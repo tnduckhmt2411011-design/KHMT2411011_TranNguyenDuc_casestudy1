@@ -19,7 +19,7 @@ class BalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 270,
+      height: 210,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -29,78 +29,54 @@ class BalanceCard extends StatelessWidget {
             Color(0xFF1769E0),
           ],
         ),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1769E0).withValues(alpha: 0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
         children: [
+          // Nội dung text bên trái
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            padding: const EdgeInsets.fromLTRB(22, 28, 120, 20),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: const [
                     Text(
                       'SỐ DƯ HIỆN TẠI',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                        letterSpacing: 0.3,
                       ),
                     ),
                     SizedBox(width: 8),
                     Icon(
-                      Icons.visibility_outlined,
+                      Icons.visibility,
                       color: Colors.white,
-                      size: 22,
+                      size: 20,
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Text(
                   '${_formatCurrency(balance)} đ',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 40,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _dot(),
-                    const SizedBox(width: 8),
-                    _dot(),
-                    const SizedBox(width: 8),
-                    _dot(),
-                  ],
                 ),
               ],
             ),
           ),
+
+          // Hình ảnh chiếc ví ở góc trên bên phải
           Positioned(
-            right: 18,
-            bottom: 22,
+            right: 16,
+            top: 22,
             child: Image.asset(
               'assets/images/wallet.png',
               width: 105,
@@ -112,7 +88,7 @@ class BalanceCard extends StatelessWidget {
                   height: 90,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Icon(
                     Icons.account_balance_wallet,
@@ -123,6 +99,32 @@ class BalanceCard extends StatelessWidget {
               },
             ),
           ),
+
+          // Các dấu chấm slide indicator ở dưới cùng giữa thẻ
+          Positioned(
+            bottom: 14,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 22,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _dot(),
+                const SizedBox(width: 8),
+                _dot(),
+                const SizedBox(width: 8),
+                _dot(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -130,10 +132,10 @@ class BalanceCard extends StatelessWidget {
 
   Widget _dot() {
     return Container(
-      width: 8,
-      height: 8,
+      width: 6,
+      height: 6,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.35),
+        color: Colors.white.withValues(alpha: 0.45),
         shape: BoxShape.circle,
       ),
     );
