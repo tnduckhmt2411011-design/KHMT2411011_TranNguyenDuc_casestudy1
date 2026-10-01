@@ -3,21 +3,26 @@ import '../models/transaction.dart';
 
 class TransactionItem extends StatelessWidget {
   final TransactionData transaction;
+  final VoidCallback? onTap;
 
   const TransactionItem({
     super.key,
     required this.transaction,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isIncome = transaction.amount.startsWith('+');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       child: Row(
         children: [
           CircleAvatar(
@@ -80,6 +85,7 @@ class TransactionItem extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

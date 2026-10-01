@@ -49,10 +49,14 @@ class TransactionHeader extends StatelessWidget {
 
 class TransactionList extends StatelessWidget {
   final List<TransactionData>? transactions;
+  final Function(TransactionData)? onTapItem;
+  final Function(TransactionData)? onDismissItem;
 
   const TransactionList({
     super.key,
     this.transactions,
+    this.onTapItem,
+    this.onDismissItem,
   });
 
   static const List<TransactionData> defaultTransactions = [
@@ -141,9 +145,35 @@ class TransactionList extends StatelessWidget {
           );
         },
         itemBuilder: (context, index) {
-          return TransactionItem(
-            transaction: list[index],
+          final item = list[index];
+          final itemWidget = TransactionItem(
+            transaction: item,
+            onTap: onTapItem != null ? () => onTapItem!(item) : null,
           );
+
+          if (onDismissItem != null && item.id != null) {
+            return Dismissible(
+              key: Key('trans_${item.id}_$index'),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE53935),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ),
+              onDismissed: (direction) => onDismissItem!(item),
+              child: itemWidget,
+            );
+          }
+
+          return itemWidget;
         },
       ),
     );

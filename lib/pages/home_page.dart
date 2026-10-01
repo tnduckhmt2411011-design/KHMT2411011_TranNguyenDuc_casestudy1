@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
 import '../models/transaction.dart';
+import '../repositories/transaction_repository.dart';
 import '../widgets/header.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/summary_card.dart';
@@ -9,7 +10,14 @@ import 'expense_form_screen.dart';
 import 'expense_list_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final TransactionRepository? repository;
+  final List<Transaction>? initialTransactions;
+
+  const HomePage({
+    super.key,
+    this.repository,
+    this.initialTransactions,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,79 +25,73 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
+  late final TransactionRepository _repository;
+  List<Transaction> _allTransactions = [];
+  bool _isLoading = true;
 
-  final List<Expense> _expenses = [
-    Expense(
-      id: 'E001',
-      title: 'Ăn trưa',
-      amount: 50000,
-      category: 'Ăn uống',
-      date: DateTime(2024, 9, 3),
-      isExpense: true,
-    ),
-    Expense(
-      id: 'E002',
-      title: 'Xăng xe',
-      amount: 100000,
-      category: 'Di chuyển',
-      date: DateTime(2024, 9, 3),
-      isExpense: true,
-    ),
-    Expense(
-      id: 'E003',
-      title: 'Lương tháng 9',
-      amount: 8000000,
-      category: 'Thu nhập',
-      date: DateTime(2024, 9, 1),
-      isExpense: false,
-    ),
-    Expense(
-      id: 'E004',
-      title: 'Mua sắm',
-      amount: 300000,
-      category: 'Mua sắm',
-      date: DateTime(2024, 8, 31),
-      isExpense: true,
-    ),
-    Expense(
-      id: 'E005',
-      title: 'Học phí',
-      amount: 500000,
-      category: 'Học tập',
-      date: DateTime(2024, 8, 30),
-      isExpense: true,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _repository = widget.repository ?? TransactionRepository();
+    if (widget.initialTransactions != null) {
+      _allTransactions = List.from(widget.initialTransactions!);
+      _isLoading = false;
+    } else {
+      _loadTransactions();
+    }
+  }
 
+  // Nạp toàn bộ danh sách giao dịch từ SQLite qua Repository
+  Future<void> _loadTransactions() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final data = await _repository.getAllTransactions();
+      if (mounted) {
+        setState(() {
+          _allTransactions = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Tính tổng thu bằng fold trên toàn bộ giao dịch type == 'income'
   double get _totalIncome {
-    double total = 0;
-    for (final e in _expenses) {
-      if (!e.isExpense) {
-        total += e.amount;
-      }
-    }
-    return total;
+    return _allTransactions
+        .where((t) => t.type == 'income')
+        .fold(0.0, (sum, t) => sum + t.amount);
   }
 
+  // Tính tổng chi bằng fold trên toàn bộ giao dịch type == 'expense'
   double get _totalExpense {
-    double total = 0;
-    for (final e in _expenses) {
-      if (e.isExpense) {
-        total += e.amount;
-      }
-    }
-    return total;
+    return _allTransactions
+        .where((t) => t.type == 'expense')
+        .fold(0.0, (sum, t) => sum + t.amount);
   }
 
+  // Số dư = Tổng thu - Tổng chi
   double get _balance {
     return _totalIncome - _totalExpense;
   }
 
-  List<TransactionData> get _transactionDataList {
-    return _expenses.map((e) {
+  // 5 giao dịch gần đây nhất để hiển thị trên Dashboard
+  List<TransactionData> get _recentTransactionDataList {
+    final recentList = _allTransactions.take(5).toList();
+
+    return recentList.map((t) {
       IconData icon;
       Color color;
-      switch (e.category) {
+
+      switch (t.category) {
         case 'Ăn uống':
           icon = Icons.restaurant;
           color = const Color(0xFFFF6D00);
@@ -112,51 +114,89 @@ class _HomePageState extends State<HomePage> {
           color = const Color(0xFF009688);
           break;
         default:
-          icon = e.isExpense ? Icons.payment : Icons.attach_money;
-          color = e.isExpense ? const Color(0xFFE53935) : const Color(0xFF2EAD4B);
+          icon = t.type == 'expense' ? Icons.payment : Icons.attach_money;
+          color = t.type == 'expense'
+              ? const Color(0xFFE53935)
+              : const Color(0xFF2EAD4B);
       }
 
+      final sign = t.type == 'expense' ? '-' : '+';
       final formattedAmount =
-          '${e.isExpense ? '-' : '+'}${e.amount.toStringAsFixed(0).replaceAllMapped(
+          '$sign${t.amount.toStringAsFixed(0).replaceAllMapped(
                 RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
                 (Match m) => '${m[1]}.',
               )} đ';
-      final formattedDate =
-          '${e.date.day.toString().padLeft(2, '0')}/${e.date.month.toString().padLeft(2, '0')}/${e.date.year}';
+
+      // Chuyển ngày từ ISO yyyy-MM-dd sang dd/MM/yyyy
+      String formattedDate = t.date;
+      final parts = t.date.split('-');
+      if (parts.length == 3) {
+        formattedDate = '${parts[2]}/${parts[1]}/${parts[0]}';
+      }
 
       return TransactionData(
-        title: e.title,
-        category: e.category,
+        id: t.id,
+        title: t.title,
+        category: t.category,
         date: formattedDate,
         amount: formattedAmount,
         icon: icon,
         color: color,
+        rawTransaction: t,
       );
     }).toList();
   }
 
-  void _openAddExpense() {
-    Navigator.push(
+  // Mở màn hình Thêm giao dịch và nạp lại khi nhận true
+  Future<void> _openAddExpense() async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ExpenseFormScreen(
-          onSave: (newExpense) {
-            setState(() {
-              _expenses.insert(0, newExpense);
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Đã thêm giao dịch: ${newExpense.title}'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            );
-          },
+          repository: _repository,
         ),
       ),
     );
+
+    if (result == true) {
+      await _loadTransactions();
+    }
+  }
+
+  // Mở màn hình Sửa giao dịch khi chạm vào một giao dịch
+  Future<void> _openEditTransaction(TransactionData data) async {
+    if (data.rawTransaction == null) return;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExpenseFormScreen(
+          initialTransaction: data.rawTransaction,
+          repository: _repository,
+        ),
+      ),
+    );
+
+    if (result == true) {
+      await _loadTransactions();
+    }
+  }
+
+  // Xóa giao dịch bằng vuốt (Dismissible P2)
+  Future<void> _deleteRecentTransaction(TransactionData data) async {
+    if (data.id == null) return;
+
+    await _repository.deleteTransaction(data.id!);
+    await _loadTransactions();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đã xóa giao dịch: ${data.title}'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -166,7 +206,10 @@ class _HomePageState extends State<HomePage> {
         balance: _balance,
         income: _totalIncome,
         expense: _totalExpense,
-        transactions: _transactionDataList,
+        transactions: _recentTransactionDataList,
+        isLoading: _isLoading,
+        onTapItem: _openEditTransaction,
+        onDismissItem: _deleteRecentTransaction,
         onSeeAll: () {
           setState(() {
             currentIndex = 1;
@@ -174,21 +217,51 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       ExpenseListPage(
-        externalExpenses: _expenses,
-        onAdd: (newExpense) {
-          setState(() {
-            _expenses.insert(0, newExpense);
-          });
+        externalExpenses: _allTransactions.map((t) {
+          return Expense(
+            id: t.id?.toString() ?? '',
+            title: t.title,
+            amount: t.amount,
+            category: t.category,
+            date: DateTime.tryParse(t.date) ?? DateTime.now(),
+            isExpense: t.type == 'expense',
+          );
+        }).toList(),
+        onAdd: (newExpense) async {
+          final t = Transaction(
+            title: newExpense.title,
+            amount: newExpense.amount,
+            type: newExpense.isExpense ? 'expense' : 'income',
+            date:
+                '${newExpense.date.year}-${newExpense.date.month.toString().padLeft(2, '0')}-${newExpense.date.day.toString().padLeft(2, '0')}',
+            category: newExpense.category,
+          );
+          await _repository.insertTransaction(t);
+          await _loadTransactions();
         },
-        onEdit: (index, updatedExpense) {
-          setState(() {
-            _expenses[index] = updatedExpense;
-          });
+        onEdit: (index, updatedExpense) async {
+          if (index < _allTransactions.length) {
+            final old = _allTransactions[index];
+            final t = old.copyWith(
+              title: updatedExpense.title,
+              amount: updatedExpense.amount,
+              type: updatedExpense.isExpense ? 'expense' : 'income',
+              date:
+                  '${updatedExpense.date.year}-${updatedExpense.date.month.toString().padLeft(2, '0')}-${updatedExpense.date.day.toString().padLeft(2, '0')}',
+              category: updatedExpense.category,
+            );
+            await _repository.updateTransaction(t);
+            await _loadTransactions();
+          }
         },
-        onDelete: (index) {
-          setState(() {
-            _expenses.removeAt(index);
-          });
+        onDelete: (index) async {
+          if (index < _allTransactions.length) {
+            final old = _allTransactions[index];
+            if (old.id != null) {
+              await _repository.deleteTransaction(old.id!);
+              await _loadTransactions();
+            }
+          }
         },
       ),
       const Center(
@@ -276,6 +349,9 @@ class HomeContent extends StatelessWidget {
   final double income;
   final double expense;
   final List<TransactionData> transactions;
+  final bool isLoading;
+  final Function(TransactionData)? onTapItem;
+  final Function(TransactionData)? onDismissItem;
   final VoidCallback? onSeeAll;
 
   const HomeContent({
@@ -284,6 +360,9 @@ class HomeContent extends StatelessWidget {
     required this.income,
     required this.expense,
     required this.transactions,
+    this.isLoading = false,
+    this.onTapItem,
+    this.onDismissItem,
     this.onSeeAll,
   });
 
@@ -302,7 +381,19 @@ class HomeContent extends StatelessWidget {
           const SizedBox(height: 28),
           TransactionHeader(onSeeAll: onSeeAll),
           const SizedBox(height: 12),
-          TransactionList(transactions: transactions),
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 36),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else
+            TransactionList(
+              transactions: transactions,
+              onTapItem: onTapItem,
+              onDismissItem: onDismissItem,
+            ),
         ],
       ),
     );

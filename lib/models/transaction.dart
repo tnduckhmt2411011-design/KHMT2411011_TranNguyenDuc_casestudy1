@@ -64,19 +64,23 @@ class Transaction {
 }
 
 class TransactionData {
+  final int? id;
   final String title;
   final String category;
   final String date;
   final String amount;
   final IconData icon;
   final Color color;
+  final Transaction? rawTransaction;
 
   const TransactionData({
+    this.id,
     required this.title,
     required this.category,
     required this.date,
     required this.amount,
     required this.icon,
     required this.color,
+    this.rawTransaction,
   });
 }
