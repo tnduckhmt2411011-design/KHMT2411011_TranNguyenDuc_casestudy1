@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
+import '../models/transaction.dart';
+import '../repositories/transaction_repository.dart';
 
 class ExpenseFormScreen extends StatefulWidget {
+  final Transaction? initialTransaction;
   final Expense? initialExpense;
-  final Function(Expense) onSave;
+  final Function(Expense)? onSave;
+  final TransactionRepository? repository;
 
   const ExpenseFormScreen({
     super.key,
+    this.initialTransaction,
     this.initialExpense,
-    required this.onSave,
+    this.onSave,
+    this.repository,
   });
 
   @override
@@ -22,6 +28,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   late final TextEditingController _noteController;
 
   bool _isExpense = true;
+  bool _isSaving = false;
   String _selectedCategory = 'Ăn uống';
   DateTime _selectedDate = DateTime.now();
 
@@ -61,13 +68,24 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   @override
   void initState() {
     super.initState();
-    final expense = widget.initialExpense;
-    if (expense != null) {
+    if (widget.initialTransaction != null) {
+      final t = widget.initialTransaction!;
+      // Màn Sửa điền sẵn số tiền ở dạng số thô (ví dụ 100000), không điền chuỗi có dấu chấm
+      _amountController = TextEditingController(
+        text: t.amount.toStringAsFixed(0),
+      );
+      _noteController = TextEditingController(text: t.title);
+      final mappedCategory = t.category == 'Giáo dục' ? 'Học tập' : t.category;
+      final exists = _categories.any((c) => c['name'] == mappedCategory);
+      _selectedCategory = exists ? mappedCategory : 'Khác';
+      _selectedDate = DateTime.tryParse(t.date) ?? DateTime.now();
+      _isExpense = t.type == 'expense';
+    } else if (widget.initialExpense != null) {
+      final expense = widget.initialExpense!;
       _amountController = TextEditingController(
         text: expense.amount.toStringAsFixed(0),
       );
       _noteController = TextEditingController(text: expense.title);
-      // Đảm bảo category ban đầu luôn tồn tại trong danh sách dropdown
       final mappedCategory = expense.category == 'Giáo dục' ? 'Học tập' : expense.category;
       final exists = _categories.any((c) => c['name'] == mappedCategory);
       _selectedCategory = exists ? mappedCategory : 'Khác';
@@ -94,7 +112,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
 
     if (pickedDate != null) {
@@ -104,30 +122,92 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     }
   }
 
-  void _saveExpense() {
+  Future<void> _saveExpense() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
     final cleanAmount =
         _amountController.text.replaceAll('.', '').replaceAll(',', '').trim();
-    final amount = double.tryParse(cleanAmount) ?? 0.0;
-    final title = _noteController.text.trim().isNotEmpty
-        ? _noteController.text.trim()
-        : _selectedCategory;
+    final amount = double.tryParse(cleanAmount);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập số tiền hợp lệ (> 0)'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
-    final expense = Expense(
-      id: widget.initialExpense?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      amount: amount,
-      category: _selectedCategory,
-      date: _selectedDate,
-      isExpense: _isExpense,
-    );
+    final note = _noteController.text.trim();
+    final title = note.isNotEmpty ? note : _selectedCategory;
+    final type = _isExpense ? 'expense' : 'income';
+    final isoDate =
+        '${_selectedDate.year.toString().padLeft(4, '0')}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
 
-    widget.onSave(expense);
-    Navigator.pop(context);
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // 1. Tương thích ngược với callback onSave (dùng trong test Buổi 3/4)
+      if (widget.onSave != null) {
+        final expense = Expense(
+          id: widget.initialExpense?.id ??
+              widget.initialTransaction?.id?.toString() ??
+              DateTime.now().millisecondsSinceEpoch.toString(),
+          title: title,
+          amount: amount,
+          category: _selectedCategory,
+          date: _selectedDate,
+          isExpense: _isExpense,
+        );
+        widget.onSave!(expense);
+      }
+
+      // 2. Thao tác với SQLite qua TransactionRepository (Buổi 6)
+      final repo = widget.repository ?? TransactionRepository();
+      if (widget.initialTransaction != null) {
+        final updated = widget.initialTransaction!.copyWith(
+          title: title,
+          amount: amount,
+          type: type,
+          date: isoDate,
+          category: _selectedCategory,
+        );
+        await repo.updateTransaction(updated);
+      } else if (widget.onSave == null || widget.repository != null) {
+        final newTransaction = Transaction(
+          title: title,
+          amount: amount,
+          type: type,
+          date: isoDate,
+          category: _selectedCategory,
+        );
+        await repo.insertTransaction(newTransaction);
+      }
+
+      if (mounted) {
+        // Trả kết quả true cho màn hình trước nạp lại dữ liệu
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi lưu giao dịch: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   String _formatDate(DateTime date) {
@@ -139,7 +219,8 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.initialExpense != null;
+    final isEditing =
+        widget.initialExpense != null || widget.initialTransaction != null;
     final screenTitle = isEditing ? 'Sửa giao dịch' : 'Thêm giao dịch';
 
     return Scaffold(
@@ -252,11 +333,11 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedCategory,
+                  value: _selectedCategory,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 14,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -447,22 +528,32 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _saveExpense,
+                    onPressed: _isSaving ? null : _saveExpense,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1769E0),
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: const Color(0xFF93C5FD),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Lưu',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Lưu',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ],
