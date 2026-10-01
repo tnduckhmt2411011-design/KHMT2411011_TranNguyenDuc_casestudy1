@@ -4,6 +4,50 @@ import 'package:casestudy1_app/pages/home_page.dart';
 import 'package:casestudy1_app/pages/expense_form_screen.dart';
 import 'package:casestudy1_app/pages/expense_list_page.dart';
 import 'package:casestudy1_app/models/expense.dart';
+import 'package:casestudy1_app/models/transaction.dart';
+
+final sampleBuoi4Transactions = [
+  Transaction(
+    id: 1,
+    title: 'Ăn trưa',
+    amount: 50000,
+    category: 'Ăn uống',
+    date: '2024-09-03',
+    type: 'expense',
+  ),
+  Transaction(
+    id: 2,
+    title: 'Xăng xe',
+    amount: 100000,
+    category: 'Di chuyển',
+    date: '2024-09-03',
+    type: 'expense',
+  ),
+  Transaction(
+    id: 3,
+    title: 'Lương tháng 9',
+    amount: 8000000,
+    category: 'Thu nhập',
+    date: '2024-09-01',
+    type: 'income',
+  ),
+  Transaction(
+    id: 4,
+    title: 'Mua sắm',
+    amount: 300000,
+    category: 'Mua sắm',
+    date: '2024-08-31',
+    type: 'expense',
+  ),
+  Transaction(
+    id: 5,
+    title: 'Học phí',
+    amount: 500000,
+    category: 'Học tập',
+    date: '2024-08-30',
+    type: 'expense',
+  ),
+];
 
 void main() {
   group('Kiểm tra toàn diện Buổi 3', () {
@@ -101,8 +145,8 @@ void main() {
   group('Kiểm tra toàn diện Buổi 4', () {
     testWidgets('HomePage: Hiển thị đầy đủ các thành phần Dashboard theo tài liệu', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: HomePage(),
+        MaterialApp(
+          home: HomePage(initialTransactions: sampleBuoi4Transactions),
         ),
       );
 
@@ -143,8 +187,8 @@ void main() {
 
     testWidgets('HomePage: Tự động cập nhật số dư, tổng thu và tổng chi khi chuyển đổi giao dịch từ Chi tiêu sang Thu nhập', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: HomePage(),
+        MaterialApp(
+          home: HomePage(initialTransactions: sampleBuoi4Transactions),
         ),
       );
 
