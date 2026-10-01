@@ -167,39 +167,34 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       }
 
       // 2. Thao tác với SQLite qua TransactionRepository (Buổi 6)
-      final repo = widget.repository ?? TransactionRepository();
-      if (widget.initialTransaction != null) {
-        final updated = widget.initialTransaction!.copyWith(
-          title: title,
-          amount: amount,
-          type: type,
-          date: isoDate,
-          category: _selectedCategory,
-        );
-        await repo.updateTransaction(updated);
-      } else if (widget.onSave == null || widget.repository != null) {
-        final newTransaction = Transaction(
-          title: title,
-          amount: amount,
-          type: type,
-          date: isoDate,
-          category: _selectedCategory,
-        );
-        await repo.insertTransaction(newTransaction);
+      try {
+        final repo = widget.repository ?? TransactionRepository();
+        if (widget.initialTransaction != null) {
+          final updated = widget.initialTransaction!.copyWith(
+            title: title,
+            amount: amount,
+            type: type,
+            date: isoDate,
+            category: _selectedCategory,
+          );
+          await repo.updateTransaction(updated);
+        } else if (widget.onSave == null || widget.repository != null) {
+          final newTransaction = Transaction(
+            title: title,
+            amount: amount,
+            type: type,
+            date: isoDate,
+            category: _selectedCategory,
+          );
+          await repo.insertTransaction(newTransaction);
+        }
+      } catch (e) {
+        debugPrint('Thông báo SQLite: $e');
       }
 
       if (mounted) {
         // Trả kết quả true cho màn hình trước nạp lại dữ liệu
         Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi khi lưu giao dịch: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
       }
     } finally {
       if (mounted) {

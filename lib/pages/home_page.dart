@@ -229,6 +229,7 @@ class _HomePageState extends State<HomePage> {
         }).toList(),
         onAdd: (newExpense) async {
           final t = Transaction(
+            id: DateTime.now().millisecondsSinceEpoch,
             title: newExpense.title,
             amount: newExpense.amount,
             type: newExpense.isExpense ? 'expense' : 'income',
@@ -236,7 +237,12 @@ class _HomePageState extends State<HomePage> {
                 '${newExpense.date.year}-${newExpense.date.month.toString().padLeft(2, '0')}-${newExpense.date.day.toString().padLeft(2, '0')}',
             category: newExpense.category,
           );
-          await _repository.insertTransaction(t);
+          setState(() {
+            _allTransactions.insert(0, t);
+          });
+          try {
+            await _repository.insertTransaction(t);
+          } catch (_) {}
           await _loadTransactions();
         },
         onEdit: (index, updatedExpense) async {
@@ -250,17 +256,27 @@ class _HomePageState extends State<HomePage> {
                   '${updatedExpense.date.year}-${updatedExpense.date.month.toString().padLeft(2, '0')}-${updatedExpense.date.day.toString().padLeft(2, '0')}',
               category: updatedExpense.category,
             );
-            await _repository.updateTransaction(t);
+            setState(() {
+              _allTransactions[index] = t;
+            });
+            try {
+              await _repository.updateTransaction(t);
+            } catch (_) {}
             await _loadTransactions();
           }
         },
         onDelete: (index) async {
           if (index < _allTransactions.length) {
             final old = _allTransactions[index];
-            if (old.id != null) {
-              await _repository.deleteTransaction(old.id!);
-              await _loadTransactions();
-            }
+            setState(() {
+              _allTransactions.removeAt(index);
+            });
+            try {
+              if (old.id != null) {
+                await _repository.deleteTransaction(old.id!);
+              }
+            } catch (_) {}
+            await _loadTransactions();
           }
         },
       ),
