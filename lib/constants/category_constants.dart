@@ -20,8 +20,8 @@ class CategoryConstants {
   static const Color colorMuaSam = Color(0xFF26C6DA); // Xanh ngoc / cyan
   static const Color colorLuong = Color(0xFF2EAD4B);  // Xanh la cay
   static const Color colorDiLai = Color(0xFFAB47BC);  // Tim
-  static const Color colorHocTap = Color(0xFF5C6BC0); // Cham / indigo
-  static const Color colorKhac = Color(0xFFBA68C8);   // Tim nhat / hoa ca
+  static const Color colorHocTap = Color(0xFF1E88E5); // Xanh duong (theo cham Hoc tap man 6)
+  static const Color colorKhac = Color(0xFFFB8C00);   // Vang cam (theo mau phan biet tren bieu do man 6)
 
   // Danh muc chi tieu theo dung anh tham chieu
   static const List<CategoryItem> expenseCategories = [
