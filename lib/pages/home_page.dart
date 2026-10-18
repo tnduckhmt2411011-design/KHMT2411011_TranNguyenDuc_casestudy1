@@ -254,6 +254,16 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      const Center(
+        child: Text(
+          'Cá nhân',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF64748B),
+          ),
+        ),
+      ),
     ];
 
     return Container(
@@ -316,6 +326,11 @@ class _HomePageState extends State<HomePage> {
                   icon: Icon(Icons.pie_chart_outline),
                   activeIcon: Icon(Icons.pie_chart),
                   label: 'Thống kê',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline),
+                  activeIcon: Icon(Icons.person),
+                  label: 'Cá nhân',
                 ),
               ],
             ),
