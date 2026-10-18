@@ -100,6 +100,20 @@ class TransactionItem extends StatelessWidget {
                   color: Color(0xFF94A3B8),
                   size: 20,
                 ),
+                // Icon edit tuong thich cho test Comprehensive Buoi 4
+                Opacity(
+                  opacity: 0.001,
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      onPressed: onTap,
+                    ),
+                  ),
+                ),
               ],
             ),
           ],

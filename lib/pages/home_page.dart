@@ -9,6 +9,7 @@ import '../widgets/summary_card.dart';
 import '../widgets/transaction_list.dart';
 import 'expense_form_screen.dart';
 import 'expense_list_page.dart';
+import '../screens/transaction_list_screen.dart';
 
 class HomePage extends StatefulWidget {
   final TransactionRepository? repository;
@@ -180,69 +181,18 @@ class _HomePageState extends State<HomePage> {
           });
         },
       ),
-      ExpenseListPage(
-        externalExpenses: _allTransactions.map((t) {
-          return Expense(
-            id: t.id?.toString() ?? '',
-            title: t.title,
-            amount: t.amount,
-            category: t.category,
-            date: DateTime.tryParse(t.date) ?? DateTime.now(),
-            isExpense: t.type == 'expense',
-          );
-        }).toList(),
-        onAdd: (newExpense) async {
-          final t = Transaction(
-            id: DateTime.now().millisecondsSinceEpoch,
-            title: newExpense.title,
-            amount: newExpense.amount,
-            type: newExpense.isExpense ? 'expense' : 'income',
-            date:
-                '${newExpense.date.year}-${newExpense.date.month.toString().padLeft(2, '0')}-${newExpense.date.day.toString().padLeft(2, '0')}',
-            category: newExpense.category,
-          );
-          setState(() {
-            _allTransactions.insert(0, t);
-          });
-          try {
-            await _repository.insertTransaction(t);
-          } catch (_) {}
-          await _loadTransactions();
-        },
-        onEdit: (index, updatedExpense) async {
-          if (index < _allTransactions.length) {
-            final old = _allTransactions[index];
-            final t = old.copyWith(
-              title: updatedExpense.title,
-              amount: updatedExpense.amount,
-              type: updatedExpense.isExpense ? 'expense' : 'income',
-              date:
-                  '${updatedExpense.date.year}-${updatedExpense.date.month.toString().padLeft(2, '0')}-${updatedExpense.date.day.toString().padLeft(2, '0')}',
-              category: updatedExpense.category,
-            );
+      TransactionListScreen(
+        repository: _repository,
+        initialTransactions: _allTransactions,
+        onTransactionUpdated: (updated) {
+          final idx = _allTransactions.indexWhere((t) => t.id == updated.id);
+          if (idx != -1) {
             setState(() {
-              _allTransactions[index] = t;
+              _allTransactions[idx] = updated;
             });
-            try {
-              await _repository.updateTransaction(t);
-            } catch (_) {}
-            await _loadTransactions();
           }
         },
-        onDelete: (index) async {
-          if (index < _allTransactions.length) {
-            final old = _allTransactions[index];
-            setState(() {
-              _allTransactions.removeAt(index);
-            });
-            try {
-              if (old.id != null) {
-                await _repository.deleteTransaction(old.id!);
-              }
-            } catch (_) {}
-            await _loadTransactions();
-          }
-        },
+        onDataChanged: _loadTransactions,
       ),
       const Center(
         child: Text(
