@@ -10,6 +10,7 @@ import '../widgets/transaction_list.dart';
 import 'expense_form_screen.dart';
 import 'expense_list_page.dart';
 import '../screens/transaction_list_screen.dart';
+import '../screens/statistics_screen.dart';
 
 class HomePage extends StatefulWidget {
   final TransactionRepository? repository;
@@ -194,15 +195,9 @@ class _HomePageState extends State<HomePage> {
         },
         onDataChanged: _loadTransactions,
       ),
-      const Center(
-        child: Text(
-          'Thống kê',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF64748B),
-          ),
-        ),
+      StatisticsScreen(
+        repository: _repository,
+        initialTransactions: _allTransactions,
       ),
       const Center(
         child: Text(
