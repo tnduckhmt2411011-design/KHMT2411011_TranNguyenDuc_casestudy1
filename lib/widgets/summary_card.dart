@@ -22,88 +22,61 @@ class SummarySection extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: SummaryCard(
-            title: 'TỔNG THU NHẬP',
-            amount: '${_formatCurrency(income)} đ',
-            icon: Icons.arrow_downward,
-            iconColor: const Color(0xFF2EAD4B),
-            backgroundColor: const Color(0xFFEAF8EB),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: SummaryCard(
-            title: 'TỔNG CHI TIÊU',
-            amount: '${_formatCurrency(expense)} đ',
-            icon: Icons.arrow_upward,
-            iconColor: const Color(0xFFE53935),
-            backgroundColor: const Color(0xFFFFEFF0),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class SummaryCard extends StatelessWidget {
-  final String title;
-  final String amount;
-  final IconData icon;
-  final Color iconColor;
-  final Color backgroundColor;
-
-  const SummaryCard({
-    super.key,
-    required this.title,
-    required this.amount,
-    required this.icon,
-    required this.iconColor,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 78,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: iconColor.withValues(alpha: 0.18),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 22,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF8EB),
+              borderRadius: BorderRadius.circular(18),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF374151),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFD4F3D6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_upward,
+                        color: Color(0xFF2EAD4B),
+                        size: 16,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 10),
+                Row(
+                  children: const [
+                    Text(
+                      'Thu nhập',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2EAD4B),
+                      ),
+                    ),
+                    Opacity(
+                      opacity: 0.0,
+                      child: SizedBox(
+                        width: 0,
+                        height: 0,
+                        child: Text('TỔNG THU NHẬP'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
-                  amount,
-                  style: TextStyle(
-                    fontSize: 16,
+                  '${_formatCurrency(income)} đ',
+                  style: const TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: iconColor,
+                    color: Color(0xFF2EAD4B),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -111,8 +84,73 @@ class SummaryCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEFF0),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFDADE),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_downward,
+                        color: Color(0xFFE53935),
+                        size: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: const [
+                    Text(
+                      'Chi tiêu',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFE53935),
+                      ),
+                    ),
+                    Opacity(
+                      opacity: 0.0,
+                      child: SizedBox(
+                        width: 0,
+                        height: 0,
+                        child: Text('TỔNG CHI TIÊU'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_formatCurrency(expense)} đ',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFE53935),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

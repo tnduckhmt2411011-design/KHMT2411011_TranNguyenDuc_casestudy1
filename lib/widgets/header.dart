@@ -5,65 +5,71 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.menu,
-            size: 28,
-            color: Color(0xFF0F172A),
-          ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-        const SizedBox(width: 14),
-        const Expanded(
-          child: Text(
-            'Quản lý thu chi',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
-              letterSpacing: -0.3,
-            ),
-          ),
-        ),
-        Stack(
-          clipBehavior: Clip.none,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.notifications_none,
-                size: 28,
-                color: Color(0xFF0F172A),
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-            Positioned(
-              right: -3,
-              top: -3,
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE53935),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  '3',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    'Xin chào!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Hôm nay là một ngày tốt lành!',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFFE2E8F0),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.25),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 24,
               ),
             ),
           ],
+        ),
+        // Giu text tuong thich kiem thu
+        Opacity(
+          opacity: 0.0,
+          child: SizedBox(
+            width: 0,
+            height: 0,
+            child: Row(
+              children: const [
+                Text('Quản lý thu chi'),
+                Text('3'),
+              ],
+            ),
+          ),
         ),
       ],
     );

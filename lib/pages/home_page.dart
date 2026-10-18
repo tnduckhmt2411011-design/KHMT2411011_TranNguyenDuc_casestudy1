@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/category_constants.dart';
 import '../models/expense.dart';
 import '../models/transaction.dart';
 import '../repositories/transaction_repository.dart';
@@ -83,61 +84,24 @@ class _HomePageState extends State<HomePage> {
     return _totalIncome - _totalExpense;
   }
 
-  // 5 giao dịch gần đây nhất để hiển thị trên Dashboard
+  // 5 giao dịch gần đây nhất để hiển thị trên Dashboard theo đúng ảnh màn 2
   List<TransactionData> get _recentTransactionDataList {
     final recentList = _allTransactions.take(5).toList();
 
     return recentList.map((t) {
-      IconData icon;
-      Color color;
-
-      switch (t.category) {
-        case 'Ăn uống':
-          icon = Icons.restaurant;
-          color = const Color(0xFFFF6D00);
-          break;
-        case 'Di chuyển':
-          icon = Icons.directions_car;
-          color = const Color(0xFF2196F3);
-          break;
-        case 'Thu nhập':
-          icon = Icons.attach_money;
-          color = const Color(0xFF2EAD4B);
-          break;
-        case 'Mua sắm':
-          icon = Icons.shopping_cart;
-          color = const Color(0xFF9C27B0);
-          break;
-        case 'Học tập':
-        case 'Giáo dục':
-          icon = Icons.school;
-          color = const Color(0xFF009688);
-          break;
-        default:
-          icon = t.type == 'expense' ? Icons.payment : Icons.attach_money;
-          color = t.type == 'expense'
-              ? const Color(0xFFE53935)
-              : const Color(0xFF2EAD4B);
-      }
+      final icon = CategoryConstants.getIcon(t.category);
+      final color = CategoryConstants.getColor(t.category);
 
       final sign = t.type == 'expense' ? '-' : '+';
       final formattedAmount =
-          '$sign${t.amount.toStringAsFixed(0).replaceAllMapped(
-                RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                (Match m) => '${m[1]}.',
-              )} đ';
+          '$sign${CategoryConstants.formatCurrency(t.amount)}';
 
-      // Chuyển ngày từ ISO yyyy-MM-dd sang dd/MM/yyyy
-      String formattedDate = t.date;
-      final parts = t.date.split('-');
-      if (parts.length == 3) {
-        formattedDate = '${parts[2]}/${parts[1]}/${parts[0]}';
-      }
+      final formattedDate = CategoryConstants.formatDate(t.date);
 
       return TransactionData(
         id: t.id,
         title: t.title,
-        category: t.category,
+        category: CategoryConstants.normalizeCategory(t.category),
         date: formattedDate,
         amount: formattedAmount,
         icon: icon,
@@ -182,7 +146,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Xóa giao dịch bằng vuốt (Dismissible P2)
+  // Xóa giao dịch bằng vuốt (Dismissible)
   Future<void> _deleteRecentTransaction(TransactionData data) async {
     if (data.id == null) return;
 
@@ -293,22 +257,24 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Container(
-      color: const Color(0xFFF1F5F9), // Nền bên ngoài màn hình điện thoại
+      color: const Color(0xFFF1F5F9),
       alignment: Alignment.center,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Scaffold(
           backgroundColor: Colors.white,
-          body: SafeArea(child: pages[currentIndex]),
-          floatingActionButton: FloatingActionButton(
-            heroTag: 'home_fab',
-            backgroundColor: const Color(0xFF1769E0),
-            foregroundColor: Colors.white,
-            elevation: 4,
-            onPressed: _openAddExpense,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, size: 32),
-          ),
+          body: pages[currentIndex],
+          floatingActionButton: currentIndex == 0
+              ? FloatingActionButton(
+                  heroTag: 'home_fab',
+                  backgroundColor: const Color(0xFF1E6BEB),
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  onPressed: _openAddExpense,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.add, size: 30),
+                )
+              : null,
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
               border: Border(
@@ -324,8 +290,8 @@ class _HomePageState extends State<HomePage> {
                   currentIndex = index;
                 });
               },
-              selectedItemColor: const Color(0xFF1769E0),
-              unselectedItemColor: const Color(0xFF64748B),
+              selectedItemColor: const Color(0xFF1E6BEB),
+              unselectedItemColor: const Color(0xFF94A3B8),
               selectedLabelStyle: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -385,31 +351,60 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 90),
+      padding: const EdgeInsets.only(bottom: 90),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Header(),
-          const SizedBox(height: 20),
-          BalanceCard(balance: balance),
-          const SizedBox(height: 20),
-          SummarySection(income: income, expense: expense),
-          const SizedBox(height: 28),
-          TransactionHeader(onSeeAll: onSeeAll),
-          const SizedBox(height: 12),
-          if (isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 36),
-              child: Center(
-                child: CircularProgressIndicator(),
+          // Header nền xanh dương theo ảnh tổng thể màn 2
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E6BEB),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(28),
               ),
-            )
-          else
-            TransactionList(
-              transactions: transactions,
-              onTapItem: onTapItem,
-              onDismissItem: onDismissItem,
             ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Header(),
+                    const SizedBox(height: 18),
+                    BalanceCard(balance: balance),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SummarySection(income: income, expense: expense),
+                const SizedBox(height: 24),
+                TransactionHeader(onSeeAll: onSeeAll),
+                const SizedBox(height: 12),
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 36),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else
+                  TransactionList(
+                    transactions: transactions,
+                    onTapItem: onTapItem,
+                    onDismissItem: onDismissItem,
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

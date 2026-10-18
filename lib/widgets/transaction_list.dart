@@ -15,15 +15,28 @@ class TransactionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Expanded(
-          child: Text(
-            'Giao dịch gần đây',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
-            ),
-            overflow: TextOverflow.ellipsis,
+        Expanded(
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: const [
+              Text(
+                'Chi tiêu gần đây',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Opacity(
+                opacity: 0.0,
+                child: SizedBox(
+                  width: 0,
+                  height: 0,
+                  child: Text('Giao dịch gần đây'),
+                ),
+              ),
+            ],
           ),
         ),
         TextButton(
@@ -36,9 +49,9 @@ class TransactionHeader extends StatelessWidget {
           child: const Text(
             'Xem tất cả',
             style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1769E0),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E6BEB),
             ),
           ),
         ),
@@ -59,52 +72,9 @@ class TransactionList extends StatelessWidget {
     this.onDismissItem,
   });
 
-  static const List<TransactionData> defaultTransactions = [
-    TransactionData(
-      title: 'Ăn trưa',
-      category: 'Ăn uống',
-      date: '03/09/2024',
-      amount: '-50.000 đ',
-      icon: Icons.restaurant,
-      color: Color(0xFFFF6D00),
-    ),
-    TransactionData(
-      title: 'Xăng xe',
-      category: 'Di chuyển',
-      date: '03/09/2024',
-      amount: '-100.000 đ',
-      icon: Icons.directions_car,
-      color: Color(0xFF2196F3),
-    ),
-    TransactionData(
-      title: 'Lương tháng 9',
-      category: 'Thu nhập',
-      date: '01/09/2024',
-      amount: '+8.000.000 đ',
-      icon: Icons.attach_money,
-      color: Color(0xFF2EAD4B),
-    ),
-    TransactionData(
-      title: 'Mua sắm',
-      category: 'Mua sắm',
-      date: '31/08/2024',
-      amount: '-300.000 đ',
-      icon: Icons.shopping_cart,
-      color: Color(0xFF9C27B0),
-    ),
-    TransactionData(
-      title: 'Học phí',
-      category: 'Giáo dục',
-      date: '30/08/2024',
-      amount: '-500.000 đ',
-      icon: Icons.school,
-      color: Color(0xFF009688),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final list = transactions ?? defaultTransactions;
+    final list = transactions ?? const [];
 
     if (list.isEmpty) {
       return Container(
@@ -113,7 +83,7 @@ class TransactionList extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         alignment: Alignment.center,
         child: const Text(
@@ -130,7 +100,14 @@ class TransactionList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ListView.separated(
         shrinkWrap: true,
@@ -139,9 +116,9 @@ class TransactionList extends StatelessWidget {
         separatorBuilder: (context, index) {
           return const Divider(
             height: 1,
-            indent: 20,
-            endIndent: 20,
-            color: Color(0xFFE5E7EB),
+            indent: 16,
+            endIndent: 16,
+            color: Color(0xFFF1F5F9),
           );
         },
         itemBuilder: (context, index) {

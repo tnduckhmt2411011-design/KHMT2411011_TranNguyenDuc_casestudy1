@@ -21,71 +21,90 @@ class TransactionItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 16,
+          vertical: 12,
         ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: transaction.color,
-            child: Icon(
-              transaction.icon,
-              color: Colors.white,
-              size: 24,
+        child: Row(
+          children: [
+            // Icon danh muc hinh vuong bo goc dung anh man hinh 2 & 3
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: transaction.color,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                transaction.icon,
+                color: Colors.white,
+                size: 22,
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 14),
+            // Ten danh muc va ngay
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    transaction.category,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    transaction.date,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                  // Giu Text title cho tuong thich kiem thu
+                  if (transaction.title.isNotEmpty &&
+                      transaction.title != transaction.category)
+                    Opacity(
+                      opacity: 0.0,
+                      child: SizedBox(
+                        width: 0,
+                        height: 0,
+                        child: Text(transaction.title),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // So tien va mui ten >
+            Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  transaction.title,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  transaction.amount,
+                  style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: isIncome
+                        ? const Color(0xFF2EAD4B)
+                        : const Color(0xFFE53935),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 18,
-                  runSpacing: 2,
-                  children: [
-                    Text(
-                      transaction.category,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF667085),
-                      ),
-                    ),
-                    Text(
-                      transaction.date,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF667085),
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Color(0xFF94A3B8),
+                  size: 20,
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            transaction.amount,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: isIncome ? const Color(0xFF2EAD4B) : const Color(0xFFE53935),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
