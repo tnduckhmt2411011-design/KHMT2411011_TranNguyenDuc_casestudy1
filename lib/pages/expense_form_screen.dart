@@ -44,7 +44,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       );
       final mappedCategory = CategoryConstants.normalizeCategory(t.category);
       // Quyết định mặc định 3: Nếu title trùng tên danh mục thì ô Ghi chú để trống
-      final initialNote = (t.title == t.category || t.title == mappedCategory)
+      final initialNote = (t.title == t.category ||
+              t.title == mappedCategory ||
+              CategoryConstants.normalizeCategory(t.title) == mappedCategory)
           ? ''
           : t.title;
       _noteController = TextEditingController(text: initialNote);
@@ -58,7 +60,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         text: expense.amount.toStringAsFixed(0),
       );
       final mappedCategory = CategoryConstants.normalizeCategory(expense.category);
-      final initialNote = (expense.title == expense.category || expense.title == mappedCategory)
+      final initialNote = (expense.title == expense.category ||
+              expense.title == mappedCategory ||
+              CategoryConstants.normalizeCategory(expense.title) == mappedCategory)
           ? ''
           : expense.title;
       _noteController = TextEditingController(text: initialNote);
