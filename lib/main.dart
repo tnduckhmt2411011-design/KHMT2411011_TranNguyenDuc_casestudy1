@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
+import 'screens/welcome_screen.dart';
 
 void main() {
   runApp(const ExpenseManagerApp());
@@ -15,11 +15,12 @@ class ExpenseManagerApp extends StatelessWidget {
       title: 'Quản lý thu chi',
       theme: ThemeData(
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1769E0),
+          seedColor: const Color(0xFF1E6BEB),
         ),
       ),
-      home: const HomePage(),
+      home: const WelcomeScreen(),
     );
   }
 }

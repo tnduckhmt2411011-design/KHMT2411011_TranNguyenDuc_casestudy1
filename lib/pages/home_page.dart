@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants/category_constants.dart';
-import '../models/expense.dart';
 import '../models/transaction.dart';
 import '../repositories/transaction_repository.dart';
 import '../widgets/header.dart';
@@ -8,7 +7,6 @@ import '../widgets/balance_card.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/transaction_list.dart';
 import 'expense_form_screen.dart';
-import 'expense_list_page.dart';
 import '../screens/transaction_list_screen.dart';
 import '../screens/statistics_screen.dart';
 import '../screens/profile_screen.dart';

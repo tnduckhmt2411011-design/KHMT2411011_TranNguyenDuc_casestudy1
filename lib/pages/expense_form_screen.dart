@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/category_constants.dart';
 import '../models/expense.dart';
 import '../models/transaction.dart';
 import '../repositories/transaction_repository.dart';
@@ -32,39 +33,6 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   String _selectedCategory = 'Ăn uống';
   DateTime _selectedDate = DateTime.now();
 
-  final List<Map<String, dynamic>> _categories = const [
-    {
-      'name': 'Ăn uống',
-      'icon': Icons.restaurant,
-      'color': Color(0xFFFF5C5C),
-    },
-    {
-      'name': 'Di chuyển',
-      'icon': Icons.directions_car,
-      'color': Color(0xFF2196F3),
-    },
-    {
-      'name': 'Mua sắm',
-      'icon': Icons.shopping_cart,
-      'color': Color(0xFF9C27B0),
-    },
-    {
-      'name': 'Học tập',
-      'icon': Icons.school,
-      'color': Color(0xFF009688),
-    },
-    {
-      'name': 'Thu nhập',
-      'icon': Icons.attach_money,
-      'color': Color(0xFF2EAD4B),
-    },
-    {
-      'name': 'Khác',
-      'icon': Icons.more_horiz,
-      'color': Color(0xFF757575),
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -74,10 +42,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       _amountController = TextEditingController(
         text: t.amount.toStringAsFixed(0),
       );
-      _noteController = TextEditingController(text: t.title);
-      final mappedCategory = t.category == 'Giáo dục' ? 'Học tập' : t.category;
-      final exists = _categories.any((c) => c['name'] == mappedCategory);
-      _selectedCategory = exists ? mappedCategory : 'Khác';
+      final mappedCategory = CategoryConstants.normalizeCategory(t.category);
+      // Quyết định mặc định 3: Nếu title trùng tên danh mục thì ô Ghi chú để trống
+      final initialNote = (t.title == t.category || t.title == mappedCategory)
+          ? ''
+          : t.title;
+      _noteController = TextEditingController(text: initialNote);
+
+      _selectedCategory = mappedCategory;
       _selectedDate = DateTime.tryParse(t.date) ?? DateTime.now();
       _isExpense = t.type == 'expense';
     } else if (widget.initialExpense != null) {
@@ -85,10 +57,13 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       _amountController = TextEditingController(
         text: expense.amount.toStringAsFixed(0),
       );
-      _noteController = TextEditingController(text: expense.title);
-      final mappedCategory = expense.category == 'Giáo dục' ? 'Học tập' : expense.category;
-      final exists = _categories.any((c) => c['name'] == mappedCategory);
-      _selectedCategory = exists ? mappedCategory : 'Khác';
+      final mappedCategory = CategoryConstants.normalizeCategory(expense.category);
+      final initialNote = (expense.title == expense.category || expense.title == mappedCategory)
+          ? ''
+          : expense.title;
+      _noteController = TextEditingController(text: initialNote);
+
+      _selectedCategory = mappedCategory;
       _selectedDate = expense.date;
       _isExpense = expense.isExpense;
     } else {
@@ -107,12 +82,58 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     super.dispose();
   }
 
+  // Danh sach danh muc hien tai phu hop voi loai giao dich
+  List<CategoryItem> get _availableCategories {
+    final baseList = _isExpense
+        ? CategoryConstants.expenseCategories
+        : CategoryConstants.incomeCategories;
+
+    // Dam bao danh muc dang chon luon ton tai trong dropdown de tranh loi assertion
+    if (!baseList.any((c) => c.name == _selectedCategory)) {
+      return [
+        ...baseList,
+        CategoryItem(
+          name: _selectedCategory,
+          icon: CategoryConstants.getIcon(_selectedCategory),
+          color: CategoryConstants.getColor(_selectedCategory),
+          type: _isExpense ? 'expense' : 'income',
+        ),
+      ];
+    }
+    return baseList;
+  }
+
+  void _switchType(bool isExpense) {
+    if (_isExpense == isExpense) return;
+    setState(() {
+      _isExpense = isExpense;
+      final targetList = _isExpense
+          ? CategoryConstants.expenseCategories
+          : CategoryConstants.incomeCategories;
+      if (!targetList.any((c) => c.name == _selectedCategory)) {
+        _selectedCategory = _isExpense ? 'Ăn uống' : 'Lương';
+      }
+    });
+  }
+
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF1E6BEB),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF0F172A),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate != null) {
@@ -140,6 +161,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       return;
     }
 
+    // Quyet dinh mac dinh 3: title trong DB van la Ghi chu, rong thi dung ten danh muc
     final note = _noteController.text.trim();
     final title = note.isNotEmpty ? note : _selectedCategory;
     final type = _isExpense ? 'expense' : 'income';
@@ -151,7 +173,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     });
 
     try {
-      // 1. Tương thích ngược với callback onSave (dùng trong test Buổi 3/4)
+      // 1. Tuong thich nguoc voi callback onSave (cho unit test Buoi 3/4)
       if (widget.onSave != null) {
         final expense = Expense(
           id: widget.initialExpense?.id ??
@@ -166,7 +188,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         widget.onSave!(expense);
       }
 
-      // 2. Thao tác với SQLite qua TransactionRepository (Buổi 6)
+      // 2. Thao tac voi SQLite qua TransactionRepository (Buoi 6)
       try {
         final repo = widget.repository ?? TransactionRepository();
         if (widget.initialTransaction != null) {
@@ -193,7 +215,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       }
 
       if (mounted) {
-        // Trả kết quả true cho màn hình trước nạp lại dữ liệu
+        // Tra ve ket qua true de man hinh truoc nap lai du lieu
         Navigator.pop(context, true);
       }
     } finally {
@@ -224,7 +246,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -233,7 +255,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: Color(0xFF0F172A),
           ),
         ),
       ),
@@ -245,7 +267,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Toggle Chi tiêu / Thu nhập
+                // Toggle Chi tiêu / Thu nhập theo đúng ảnh màn 4 & 5
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -256,16 +278,12 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isExpense = true;
-                            });
-                          },
+                          onTap: () => _switchType(true),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _isExpense
-                                  ? const Color(0xFFFF5C5C)
+                                  ? const Color(0xFFFF5252)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -273,7 +291,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                             child: Text(
                               'Chi tiêu',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: _isExpense
                                     ? Colors.white
@@ -285,11 +303,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isExpense = false;
-                            });
-                          },
+                          onTap: () => _switchType(false),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
@@ -302,7 +316,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                             child: Text(
                               'Thu nhập',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold,
                                 color: !_isExpense
                                     ? Colors.white
@@ -323,7 +337,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -343,29 +357,29 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                   ),
-                  items: _categories.map((cat) {
+                  items: _availableCategories.map((cat) {
                     return DropdownMenuItem<String>(
-                      value: cat['name'] as String,
+                      value: cat.name,
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: (cat['color'] as Color).withValues(alpha: 0.15),
+                              color: cat.color.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
-                              cat['icon'] as IconData,
+                              cat.icon,
                               size: 18,
-                              color: cat['color'] as Color,
+                              color: cat.color,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            cat['name'] as String,
+                            cat.name,
                             style: const TextStyle(
                               fontSize: 15,
-                              color: Color(0xFF1E293B),
+                              color: Color(0xFF0F172A),
                             ),
                           ),
                         ],
@@ -394,7 +408,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -408,7 +422,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     suffixStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: Color(0xFF0F172A),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -449,7 +463,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -472,7 +486,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                           _formatDate(_selectedDate),
                           style: const TextStyle(
                             fontSize: 15,
-                            color: Color(0xFF1E293B),
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                         const Icon(
@@ -492,7 +506,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -518,14 +532,14 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Nút Lưu
+                // Nút Lưu xanh dương
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveExpense,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1769E0),
+                      backgroundColor: const Color(0xFF1E6BEB),
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: const Color(0xFF93C5FD),
                       shape: RoundedRectangleBorder(
