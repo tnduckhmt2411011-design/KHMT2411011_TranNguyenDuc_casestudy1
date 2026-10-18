@@ -418,11 +418,19 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                   decoration: InputDecoration(
                     hintText: 'Nhập số tiền',
                     hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-                    suffixText: 'đ',
-                    suffixStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                    suffixIcon: const Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: Center(
+                        widthFactor: 1.0,
+                        child: Text(
+                          'đ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
