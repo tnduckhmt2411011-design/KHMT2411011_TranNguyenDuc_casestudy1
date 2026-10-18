@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Đã xóa giao dịch: ${data.title}'),
+          content: Text('Đã xóa giao dịch: ${data.category}'),
           behavior: SnackBarBehavior.floating,
         ),
       );
