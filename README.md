@@ -1,17 +1,18 @@
-# casestudy1_app
+# KHMT2411011 - Trần Nguyễn Đức - Case Study 1
 
-A new Flutter project.
+## Thông tin sinh viên
+- **Họ và tên:** Trần Nguyễn Đức
+- **MSSV:** KHMT2411011
+- **Email:** tnduckhmt2411011@student.ctuet.edu.vn
 
-## Getting Started
+## Thông tin project
+- **Tên project:** casestudy1_app
+- **Nhánh nộp bài:** `buoi6`
 
-This project is a starting point for a Flutter application.
+## Nội dung đã thực hiện (Buổi 6)
+- Checkout nhánh buoi5 và commit lên thành nhánh buoi6.
+- Hoàn thiện các màn hình thêm, sửa và load thông tin giao dịch lên màn hình Dashboard.
+- Hoàn thiện casestudy1 (màn hình thống kê, màn hình cá nhân và bộ lọc giao dịch).
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Link repository
+https://github.com/tnduckhmt2411011-design/KHMT2411011_TranNguyenDuc_casestudy1
