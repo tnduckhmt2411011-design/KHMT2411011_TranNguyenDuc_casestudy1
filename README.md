@@ -9,7 +9,7 @@
 - **Tên project:** casestudy1_app
 - **Nhánh nộp bài:** `buoi3`
 
-## Nội dung đã thực hiện (Buổi 1)
+## Nội dung đã thực hiện (Buổi 3)
 - Checkout nhánh buoi2 và commit lên thành nhánh buoi3.
 - Xây dựng UI Thêm giao dịch và Sửa giao dịch.
 
