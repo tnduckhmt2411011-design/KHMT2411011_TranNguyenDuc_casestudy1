@@ -9,7 +9,7 @@
 - **Tên project:** casestudy1_app
 - **Nhánh nộp bài:** `buoi5`
 
-## Nội dung đã thực hiện (Buổi 1)
+## Nội dung đã thực hiện (Buổi 5)
 - Checkout nhánh buoi4 và commit lên thành nhánh buoi5.
 - Thiết kế và xây dựng database cho ứng dụng bằng SQLite
 
