@@ -9,7 +9,7 @@
 - **Tên project:** casestudy1_app
 - **Nhánh nộp bài:** `buoi4`
 
-## Nội dung đã thực hiện (Buổi 1)
+## Nội dung đã thực hiện (Buổi 4)
 - Checkout nhánh buoi3 và commit lên thành nhánh buoi4.
 - Xây dựng màn hình Dashboard.
 
