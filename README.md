@@ -7,14 +7,12 @@
 
 ## Thông tin project
 - **Tên project:** casestudy1_app
-- **Nhánh nộp bài:** `buoi1`
+- **Nhánh nộp bài:** `buoi6`
 
-## Nội dung đã thực hiện (Buổi 1)
-- Cài đặt Flutter SDK, Android Studio, AVD
-- Tạo Flutter project `casestudy1_app`
-- Chạy thử ứng dụng trên Android Emulator
-- Khởi tạo Git và push lên nhánh `main`
-- Tạo và checkout nhánh `buoi1`
+## Nội dung đã thực hiện (Buổi 6)
+- Checkout nhánh buoi5 và commit lên thành nhánh buoi6.
+- Hoàn thiện các màn hình thêm, sửa và load thông tin giao dịch lên màn hình Dashboard.
+- Hoàn thiện casestudy1 (màn hình thống kê, màn hình cá nhân và bộ lọc giao dịch).
 
 ## Link repository
 https://github.com/tnduckhmt2411011-design/KHMT2411011_TranNguyenDuc_casestudy1
